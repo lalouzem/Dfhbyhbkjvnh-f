@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html lang="fr" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mes délais — Ne ratez plus une échéance de vos droits</title>
+<meta name="description" content="Choisissez votre situation (amende, achat en ligne, préavis, licenciement…), entrez une date : Mes délais calcule vos échéances et les ajoute à votre calendrier. Gratuit, sans compte, hors ligne.">
+<meta name="color-scheme" content="light dark">
+<style>
+:root{
+  --bg:#FBF8F3; --card:#FFFFFF; --text:#1F2933; --muted:#52606D; --accent:#B4451F; --on-accent:#FFFFFF;
+  --border:#E5DDD0; --warn-bg:#FFF4E5; --warn-border:#E8B96A; --warn-text:#5C3B00;
+  --ok:#17663A; --err:#B42318; --radius:16px; --shadow:0 1px 2px rgba(31,41,51,.06),0 4px 14px rgba(31,41,51,.06);
+}
+:root[data-theme="dark"]{
+  --bg:#14110F; --card:#1F1B18; --text:#F2EDE6; --muted:#BDB3A6; --accent:#F29B73; --on-accent:#1A0E08;
+  --border:#3A332D; --warn-bg:#2B2113; --warn-border:#7A5A1E; --warn-text:#F3D9A4;
+  --ok:#4ADE80; --err:#FF8A80; --shadow:none;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font:16px/1.55 system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;min-height:100vh;display:flex;flex-direction:column}
+.wrap{width:100%;max-width:860px;margin:0 auto;padding:0 20px}
+header.site{padding:18px 0 4px}
+.bar{display:flex;justify-content:space-between;align-items:center;gap:12px}
+.brand{font-size:1.45rem;font-weight:800;letter-spacing:-.02em;color:var(--text);text-decoration:none}
+.brand span{color:var(--accent)}
+.tagline{margin:2px 0 0;color:var(--muted);font-weight:600}
+:focus-visible{outline:3px solid var(--accent);outline-offset:3px;border-radius:6px}
+button,.btn{font:inherit;font-weight:600;border-radius:12px;border:1px solid var(--border);background:var(--card);color:var(--text);padding:10px 16px;min-height:44px;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;justify-content:center;gap:6px}
+button.primary{background:var(--accent);border-color:var(--accent);color:var(--on-accent)}
+.skip{position:absolute;left:12px;top:-60px;z-index:10;background:var(--accent);color:var(--on-accent);padding:10px 16px;border-radius:12px;font-weight:700;text-decoration:none;transition:top .15s}
+.skip:focus{top:12px}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.intro{margin:18px 0 14px;font-size:1.12rem;max-width:60ch}
+.notice{background:var(--warn-bg);border:1px solid var(--warn-border);color:var(--warn-text);border-radius:12px;padding:12px 14px;font-size:.95rem;margin:0 0 20px}
+.notice strong{font-weight:700}
+.cat{margin:22px 0 8px;font-size:.85rem;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);font-weight:700}
+.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;list-style:none;padding:0;margin:0}
+@media (min-width:720px){.grid{grid-template-columns:repeat(3,1fr);gap:14px}}
+.tile{display:block;height:100%;padding:16px 14px;background:var(--card);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow);text-decoration:none;color:inherit}
+.tile:hover{border-color:var(--accent)}
+.tile .ico{font-size:1.5rem;display:block;margin-bottom:4px}
+.tile h3{font-size:1rem;margin:0 0 3px}
+.tile p{margin:0;color:var(--muted);font-size:.9rem}
+main{flex:1;padding-bottom:28px}
+.panel{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow);padding:22px 20px;max-width:640px}
+.panel h2{margin:0 0 4px;font-size:1.4rem;outline:none}
+.panel .desc{margin:0 0 14px;color:var(--muted)}
+.back{display:inline-block;margin:6px 0 14px;color:var(--accent);font-weight:700;text-decoration:none}
+.back:hover{text-decoration:underline}
+fieldset{border:0;padding:0;margin:14px 0 0}
+legend{font-weight:700;padding:0;margin-bottom:6px}
+.opt{display:flex;gap:10px;align-items:flex-start;padding:10px 12px;border:1px solid var(--border);border-radius:12px;margin:6px 0;cursor:pointer}
+.opt input{width:20px;height:20px;margin:2px 0 0;accent-color:var(--accent);flex:none}
+.opt:has(input:checked){border-color:var(--accent);background:color-mix(in srgb,var(--accent) 8%,var(--card))}
+label.lbl{display:block;font-weight:700;margin:16px 0 4px}
+.help{color:var(--muted);font-size:.92rem;margin:0 0 6px}
+input[type=date]{width:100%;font:inherit;color:var(--text);background:var(--bg);border:1px solid var(--border);border-radius:12px;padding:10px 12px;min-height:46px}
+.err{color:var(--err);font-weight:600;min-height:1.3em;margin:8px 0 0}
+.results{margin-top:20px}
+.res{border:1px solid var(--border);border-left:6px solid var(--accent);border-radius:12px;padding:14px 16px;margin:12px 0;background:var(--bg)}
+.res.past{border-left-color:var(--err)}
+.res h3{margin:0 0 4px;font-size:1rem}
+.date{font-size:1.35rem;font-weight:800;margin:2px 0}
+.date::first-letter{text-transform:uppercase}
+.rel{font-weight:700;color:var(--accent)}
+.res.past .rel{color:var(--err)}
+.chip{display:inline-block;font-size:.82rem;font-weight:700;border-radius:999px;padding:2px 10px;border:1px solid var(--border);margin:6px 6px 0 0;color:var(--muted)}
+.note{margin:8px 0 0;font-size:.93rem}
+.adv{margin:8px 0 0;font-size:.93rem;color:var(--muted)}
+.actions{display:flex;gap:10px;flex-wrap:wrap;margin:16px 0 4px}
+.status{min-height:1.3em;margin:6px 0 0;font-weight:600;color:var(--ok)}
+details{margin:14px 0 0;border-top:1px solid var(--border);padding-top:10px}
+summary{cursor:pointer;font-weight:700}
+details ul{margin:8px 0 0;padding-left:20px}
+details li{margin:4px 0}
+.src{font-size:.92rem;margin:12px 0 0;color:var(--muted)}
+.src a{color:var(--accent);font-weight:600}
+footer{border-top:1px solid var(--border);padding:18px 0 26px;color:var(--muted);font-size:.9rem}
+footer p{margin:0 0 4px}
+[hidden]{display:none!important}
+@media print{header .bar button,.actions,.back,footer{display:none}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+</head>
+<body>
+<a class="skip" href="#contenu" id="skip">Aller au contenu</a>
+<div class="sr" id="announce" role="status" aria-live="polite" aria-atomic="true"></div>
+
+<header class="site"><div class="wrap">
+  <div class="bar">
+    <a class="brand" href="#" id="home-link">Mes délais<span>.</span></a>
+    <button type="button" id="theme" aria-pressed="false">🌙 Thème sombre</button>
+  </div>
+  <p class="tagline">Ne ratez plus un délai qui compte.</p>
+</div></header>
+
+<main id="contenu"><div class="wrap">
+  <p class="notice" id="banner" role="status" hidden></p>
+
+  <section id="view-home" aria-labelledby="home-title">
+    <h1 class="sr" id="home-title">Mes délais — Accueil</h1>
+    <p class="intro">Amende reçue, colis à renvoyer, préavis, licenciement… Choisissez votre situation, entrez une date : Mes délais calcule vos échéances et les ajoute à votre calendrier, avec des rappels.</p>
+    <p class="notice"><strong>Version de test, non validée par un juriste.</strong> <strong>Information, pas un conseil juridique.</strong> Les dates sont calculées d’après les règles françaises vérifiées le 6 novembre 2026 sur des sources officielles. Les cas particuliers existent : vérifiez toujours sur la fiche officielle et agissez avant, pas le dernier jour.</p>
+    <div id="home-list"></div>
+  </section>
+
+  <section class="panel" id="view-tool" aria-labelledby="tool-title" hidden>
+    <a class="back" href="#">← Toutes les situations</a>
+    <h2 id="tool-title" tabindex="-1"></h2>
+    <p class="desc" id="tool-desc"></p>
+    <fieldset id="variants" hidden><legend id="variants-legend">Votre cas</legend><div id="variants-list"></div></fieldset>
+    <label class="lbl" for="trigger" id="trigger-label">Date de départ</label>
+    <p class="help" id="trigger-help"></p>
+    <input type="date" id="trigger">
+    <p class="err" id="err" role="alert"></p>
+    <div class="results" id="results" hidden>
+      <div id="res-list"></div>
+      <div class="actions">
+        <button type="button" class="primary" id="ics">📅 Ajouter à mon calendrier</button>
+        <button type="button" id="copy">📋 Copier le récapitulatif</button>
+      </div>
+      <p class="status" id="status" role="status" aria-live="polite"></p>
+      <details><summary>Cas particuliers à connaître</summary><ul id="reserves"></ul></details>
+      <p class="src" id="src"></p>
+    </div>
+  </section>
+
+</div></main>
+
+<footer><div class="wrap">
+  <p>Mes délais. — Gratuit, sans inscription, hors publicité.</p>
+  <p>Vos dates restent dans votre navigateur : aucune donnée n’est envoyée ni enregistrée.</p>
+  <p>Jours fériés métropolitains pris en compte ; régimes locaux (Alsace-Moselle, outre-mer) non pris en compte.</p>
+  <p id="version"></p>
+</div></footer>
+
+<script>
+(function(){
+'use strict';
+var $ = function(id){ return document.getElementById(id); };
+var VERIF = '6 novembre 2026';
+var VERIF_ISO = '2026-11-06';
+var RULES_VERSION = '2026-11-06.2';
+var STALE_DAYS = 90;
+var SP = 'https://www.service-public.gouv.fr/particuliers/recherche?keyword=';
+
+/* =================== DONNÉES : règles vérifiées =================== */
+var RULES = [
+ { id:'retractation', cat:'Consommation', icon:'📦', titre:'Achat à distance : se rétracter',
+   resume:'Changer d’avis après un achat en ligne ou par téléphone.',
+   variants:[
+    { id:'bien', label:'J’ai acheté un bien (colis livré)',
+      trigger:'Date de réception du bien', help:'Le jour de la réception ne compte pas : le décompte commence le lendemain.',
+      deadlines:[{ label:'Dernier jour pour notifier votre rétractation', calc:{t:'days',n:14}, report:true,
+        note:'C’est la notification au vendeur qui doit partir avant cette date. Le renvoi du produit a ses propres délais : voir la fiche officielle.' }] },
+    { id:'service', label:'J’ai souscrit un service ou un abonnement (sans livraison de bien)',
+      trigger:'Date de conclusion du contrat', help:'Le jour de la conclusion ne compte pas : le décompte commence le lendemain.',
+      deadlines:[{ label:'Dernier jour pour notifier votre rétractation', calc:{t:'days',n:14}, report:true,
+        note:'Pour un contrat de service dont l’exécution a déjà commencé à votre demande, une somme proportionnelle peut être due.' }] }
+   ],
+   reserves:['Si le vendeur ne vous a jamais informé de ce droit, le délai peut être prolongé (jusqu’à 12 mois et 14 jours).','Certains achats n’ouvrent pas de droit de rétractation (produits personnalisés, denrées périssables, etc.).','Depuis le 19 juin 2026, les sites marchands doivent proposer une fonction de rétractation en ligne ; le délai de 14 jours reste le même.','Contrats mixtes, commandes multiples, achats hors établissement : vérifiez le point de départ sur la fiche officielle.'],
+   src:{ label:'Service-Public : achat à distance, droit de rétractation', url:'https://www.service-public.gouv.fr/particuliers/vosdroits/F10485' } },
+
+ { id:'credit-conso', cat:'Consommation', icon:'💳', titre:'Crédit à la consommation : se rétracter',
+   resume:'Revenir sur un crédit que vous venez d’accepter.',
+   variants:[{ id:'std', label:'', trigger:'Date d’acceptation de l’offre de crédit', help:'Date à laquelle vous avez accepté l’offre (signature). Le décompte commence le lendemain.',
+     deadlines:[{ label:'Dernier jour pour vous rétracter', calc:{t:'days',n:14}, report:false,
+       note:'Le report d’un dernier jour tombant un week-end ou un jour férié n’est pas confirmé pour ce régime : agissez avant.' }] }],
+   reserves:['Ne concerne pas le crédit immobilier (règles différentes).','Un crédit lié à un achat ou à un service (crédit affecté) a des règles particulières.','Se rétracter se fait selon la procédure indiquée dans votre contrat.'],
+   src:{ label:'Service-Public : rechercher la fiche « crédit à la consommation »', url:SP+'cr%C3%A9dit+%C3%A0+la+consommation+r%C3%A9tractation' } },
+
+ { id:'amende', cat:'Amendes', icon:'🚗', titre:'Amende routière forfaitaire',
+   resume:'Payer moins cher, ou contester, avant la majoration.',
+   variants:[
+    { id:'normal', label:'Je paie par chèque, en ligne sans carte, au guichet ou chez un buraliste',
+      trigger:'Date d’envoi de l’avis (ou de constatation si l’avis vous est remis sur place)', help:'C’est la date d’envoi figurant sur l’avis de contravention. À défaut, la date de l’infraction.',
+      deadlines:[
+        { label:'Paiement au tarif minoré', calc:{t:'days',n:15}, report:false, note:'Pas de tarif minoré pour la 1re classe ni pour le stationnement interdit.' },
+        { label:'Paiement au tarif normal (avant majoration)', calc:{t:'days',n:45}, report:false, note:'Passé ce délai, l’amende est majorée.' },
+        { label:'Contester l’amende', calc:{t:'days',n:45}, report:false, note:'Contester n’est plus possible si vous avez payé. Pour contester la réalité de l’infraction, une consignation est demandée.' } ] },
+    { id:'tele', label:'Je paie par télépaiement avec carte bancaire',
+      trigger:'Date d’envoi de l’avis (ou de constatation si l’avis vous est remis sur place)', help:'C’est la date d’envoi figurant sur l’avis de contravention. À défaut, la date de l’infraction.',
+      deadlines:[
+        { label:'Télépaiement au tarif minoré', calc:{t:'days',n:30}, report:false, note:'Le délai de 30 jours vaut quand l’avis est envoyé à votre domicile. Pas de minoration pour la 1re classe ni le stationnement interdit.' },
+        { label:'Télépaiement au tarif normal (avant majoration)', calc:{t:'days',n:60}, report:false, note:'Passé ce délai, l’amende est majorée.' },
+        { label:'Contester l’amende', calc:{t:'days',n:45}, report:false, note:'Le délai de contestation reste de 45 jours, même en cas de télépaiement.' } ] }
+   ],
+   reserves:['Aucun report n’est confirmé si le dernier jour est un week-end ou un jour férié : agissez avant.','Les délais s’appliquent aux contraventions au code de la route. Les forfaits de post-stationnement et les amendes forfaitaires délictuelles suivent d’autres règles.','Si vous avez demandé un délai de paiement ou une remise gracieuse, vous ne pouvez plus contester selon la procédure de réclamation.'],
+   src:{ label:'Service-Public : amende forfaitaire (code de la route)', url:'https://www.service-public.gouv.fr/particuliers/vosdroits/F18509' } },
+
+ { id:'amende-majoree', cat:'Amendes', icon:'📮', titre:'Amende majorée reçue',
+   resume:'Vous avez reçu un avis d’amende majorée : que faire, et jusqu’à quand ?',
+   variants:[
+    { id:'simple', label:'Avis envoyé en lettre simple — je paie sans télépaiement',
+      trigger:'Date d’envoi de l’avis d’amende majorée', help:'Date d’envoi figurant sur l’avis.',
+      deadlines:[
+        { label:'Payer avec 20 % de réduction', calc:{t:'days',n:30}, report:false, note:'Au-delà, le Trésor public peut engager une procédure pour obtenir le paiement.' },
+        { label:'Contester (réclamation)', calc:{t:'days',n:30}, report:false, note:'Contester la réalité de l’infraction demande une consignation du montant de l’amende majorée.' } ] },
+    { id:'tele', label:'Avis envoyé en lettre simple — je paie par télépaiement carte bancaire',
+      trigger:'Date d’envoi de l’avis d’amende majorée', help:'Date d’envoi figurant sur l’avis.',
+      deadlines:[
+        { label:'Télépaiement avec 20 % de réduction', calc:{t:'days',n:45}, report:false, note:'Au-delà, le Trésor public peut engager une procédure pour obtenir le paiement.' },
+        { label:'Contester (réclamation)', calc:{t:'days',n:30}, report:false, note:'Contester la réalité de l’infraction demande une consignation du montant de l’amende majorée.' } ] },
+    { id:'reco', label:'Avis envoyé en lettre recommandée',
+      trigger:'Date d’envoi de l’avis d’amende majorée', help:'Date d’envoi figurant sur l’avis.',
+      deadlines:[
+        { label:'Payer avec 20 % de réduction', calc:{t:'days',n:30}, report:false, note:'45 jours en cas de télépaiement par carte bancaire.' },
+        { label:'Contester (réclamation)', calc:{t:'months',n:3}, report:false, note:'Délai de 3 mois, à compter de l’envoi, lorsque l’avis a été envoyé en recommandé.' } ] }
+   ],
+   reserves:['Aucun report n’est confirmé si le dernier jour est un week-end ou un jour férié : agissez avant.','Si vous n’avez jamais reçu l’avis de contravention initial, une procédure spécifique existe : consultez la fiche officielle.','Vous ne pouvez plus contester si vous avez commencé à payer à la suite d’un délai de paiement ou obtenu une remise gracieuse.'],
+   src:{ label:'Service-Public : amende forfaitaire (code de la route)', url:'https://www.service-public.gouv.fr/particuliers/vosdroits/F18509' } },
+
+ { id:'preavis', cat:'Logement', icon:'📦', titre:'Préavis de départ (locataire)',
+   resume:'Calculer la fin de votre préavis avant de quitter un logement.',
+   variants:[
+    { id:'vide3', label:'Logement vide (non meublé), hors zone tendue, sans motif de réduction', n:3 },
+    { id:'vide1', label:'Logement vide en zone tendue, ou avec un motif légal de réduction (mutation, perte d’emploi, etc.)', n:1 },
+    { id:'meuble', label:'Logement meublé (résidence principale)', n:1 }
+   ].map(function(v){ return { id:v.id, label:v.label, trigger:'Date de réception de votre lettre par le bailleur',
+      help:'Le préavis part du jour où le bailleur reçoit réellement le congé : par lettre recommandée, le jour où il en prend possession (pas l’envoi, pas la simple présentation du facteur) ; en main propre contre récépissé, le jour de la remise ; par commissaire de justice, le jour de la signification.',
+      deadlines:[{ label:'Fin de votre préavis', calc:{t:'months',n:v.n}, report:false,
+        note:'Calcul de date à date : week-ends et jours fériés inclus, sans report (un préavis qui finit un dimanche finit ce dimanche). Si la lettre est reçue en retard, la fin du préavis est repoussée d’autant. Le loyer reste dû jusqu’à cette date, au prorata pour le dernier mois. Pour 1 mois, indiquez le motif dans la lettre et joignez le justificatif : sinon, c’est 3 mois.' }] }; }),
+   reserves:['Les motifs de réduction à 1 mois sont limités par la loi (zone tendue, mutation, perte d’emploi, premier emploi, RSA, AAH, raison de santé, logement social, violences au sein du couple…) : il faut l’indiquer dans la lettre et joindre un justificatif.','Un e-mail ou un SMS n’a pas de valeur pour donner congé. La lettre recommandée électronique est valable si le bailleur particulier l’a accepté au préalable.','Marié, pacsé, en concubinage ou en colocation : les règles de départ à deux diffèrent. Bail mobilité, logement social ou loi de 1948 : vérifiez votre cas.','Si la lettre recommandée n’est pas remise au bailleur et vous revient, le congé n’est pas valable.'],
+   src:{ label:'Service-Public : préavis et formalités du congé donné par le locataire (fiche F1168, vérifiée par Service-Public le 16 avril 2026)', url:'https://www.service-public.gouv.fr/particuliers/vosdroits/F1168' } },
+
+ { id:'depot', cat:'Logement', icon:'🔑', titre:'Dépôt de garantie : le récupérer',
+   resume:'Date limite pour que le bailleur vous rende la caution.',
+   variants:[
+    { id:'conforme', label:'État des lieux de sortie identique à celui d’entrée', n:1 },
+    { id:'ecarts', label:'État des lieux de sortie avec des différences (dégradations, charges à régulariser)', n:2 }
+   ].map(function(v){ return { id:v.id, label:v.label, trigger:'Date de remise des clés au bailleur', help:'Le délai part de la remise effective des clés, pas de la fin du préavis.',
+      deadlines:[{ label:'Date limite de restitution du dépôt de garantie', calc:{t:'months',n:v.n}, report:false,
+        note:'Au-delà, une majoration de 10 % du loyer mensuel hors charges est due par mois de retard commencé, sauf si vous n’avez pas communiqué votre nouvelle adresse.' }] }; }),
+   reserves:['Le bailleur peut retenir des sommes justifiées (loyers impayés, réparations locatives), avec justificatifs.','Une régularisation de charges de copropriété peut justifier une retenue limitée.','Bail mobilité : aucun dépôt de garantie n’est prévu.'],
+   src:{ label:'Service-Public : dépôt de garantie dans un contrat de location (fiche F31269)', url:'https://www.service-public.gouv.fr/particuliers/vosdroits/F31269' } },
+
+ { id:'solde', cat:'Travail', icon:'💼', titre:'Solde de tout compte signé',
+   resume:'Dernier moment pour dénoncer un reçu pour solde de tout compte.',
+   variants:[{ id:'std', label:'', trigger:'Date de signature du reçu', help:'Le délai de 6 mois part de votre signature, pas de la fin du contrat.',
+     deadlines:[{ label:'Fin du délai pour dénoncer le reçu', calc:{t:'months',n:6}, report:false,
+       note:'Passé ce délai, le reçu devient libératoire pour l’employeur pour les sommes qu’il mentionne. La dénonciation se fait par lettre recommandée : elle doit être reçue par l’employeur dans les 6 mois, donc envoyez-la bien avant.' }],
+     early:{ days:10, label:'Envoyer la lettre recommandée de dénonciation' } }],
+   reserves:['Ne concerne que les sommes mentionnées sur le reçu. Les autres sommes (salaires, etc.) suivent d’autres délais, par exemple 3 ans pour les créances de salaire.','Sans signature de votre part, le reçu n’a pas cet effet libératoire.','Le délai de 6 mois est distinct du délai de 12 mois pour contester le licenciement lui-même.'],
+   src:{ label:'Service-Public : rechercher la fiche « solde de tout compte »', url:SP+'solde+de+tout+compte' } },
+
+ { id:'licenciement', cat:'Travail', icon:'⚖️', titre:'Contester un licenciement',
+   resume:'Date limite générale pour saisir les prud’hommes.',
+   variants:[{ id:'std', label:'', trigger:'Date de notification du licenciement', help:'Date de réception de la lettre de licenciement ou, à défaut, de sa première présentation.',
+     deadlines:[{ label:'Fin du délai général pour agir en justice', calc:{t:'months',n:12}, report:false,
+       note:'Délai de 12 mois à compter de la notification de la rupture. Ne comptez pas sur un report éventuel : saisissez le conseil de prud’hommes bien avant.' }] }],
+   reserves:['Des délais différents existent : discrimination ou harcèlement (5 ans), paiement des salaires (3 ans), licenciement économique et adhésion au CSP (points de départ particuliers).','Une action en nullité, une suspension ou une interruption de prescription peuvent modifier le calcul.','Un syndicat, un avocat ou un défenseur syndical peut vous aider : n’attendez pas le dernier mois.'],
+   src:{ label:'Service-Public : rechercher la fiche « contester un licenciement »', url:SP+'contester+licenciement+prud%27hommes' } },
+
+ { id:'recours', cat:'Administration', icon:'🏛️', titre:'Contester une décision administrative',
+   resume:'Saisir le tribunal administratif, ou faire un recours gracieux.',
+   variants:[{ id:'std', label:'', trigger:'Date de notification (ou de publication) de la décision', help:'La date de réception de la décision écrite qui vous est adressée.',
+     deadlines:[{ label:'Fin du délai général de 2 mois', calc:{t:'months',n:2}, report:false,
+       cautious:true, note:'Pour saisir le tribunal administratif, ou pour faire un recours administratif (gracieux ou hiérarchique) qui prolonge le délai. Cette date est la plus proche possible : selon les cas, les juridictions administratives comptent le délai un jour plus long (« délai franc ») et reportent un dernier jour tombant un week-end ou un férié. N’y comptez pas : agissez avant cette date.' }] }],
+   reserves:['Un recours administratif exercé dans les 2 mois donne un nouveau délai de 2 mois pour saisir le juge, sauf recours préalable obligatoire.','Sans réponse de l’administration pendant 2 mois, le silence vaut en principe rejet, ce qui ouvre un nouveau délai de 2 mois.','Si la notification ne mentionne pas les voies et délais de recours, le délai de 2 mois n’est pas opposable.','Outre-mer, résidence à l’étranger, agents publics, contentieux particuliers : d’autres règles peuvent s’appliquer.'],
+   src:{ label:'Service-Public : recours administratif', url:'https://www.service-public.gouv.fr/particuliers/vosdroits/F2474' } },
+
+ { id:'soins', cat:'Santé', icon:'🩺', titre:'Feuille de soins papier',
+   resume:'Dernière date pour envoyer une feuille de soins à l’Assurance maladie.',
+   variants:[{ id:'std', label:'', trigger:'Date des soins (maladie)', help:'Soins liés à une maladie. Pour la maternité, le délai part de la première constatation médicale de la grossesse : calcul non proposé ici.',
+     deadlines:[{ label:'Date limite d’envoi à votre caisse', calc:{t:'quarter2y'}, report:false,
+       note:'Le délai court sur 2 ans et expire à la fin du trimestre civil concerné. La feuille doit parvenir à votre caisse avant cette date : envoyez-la sans attendre.' }] }],
+   reserves:['Règle pour les soins liés à une maladie. Maternité et prestations particulières : délais différents.','Votre complémentaire santé a son propre délai de 2 ans, avec un point de départ qui peut différer.','Une feuille de soins papier ne peut pas être envoyée en ligne : par courrier ou en point d’accueil.'],
+   src:{ label:'Justice.fr / Service-Public : feuille de soins', url:'https://www.justice.fr/fiche/feuille-soins' } }
+];
+
+var ART = {
+  'retractation':'Code de la consommation, art. L221-18 et L221-19',
+  'credit-conso':'Code de la consommation, art. L312-19 et L312-20 (14 jours calendaires révolus à compter du jour de l’acceptation)',
+  'amende':'Code de procédure pénale, art. 529 à 529-2 et 529-7 à 529-11',
+  'amende-majoree':'Code de procédure pénale, art. 529 à 529-2 et 529-7 à 529-11',
+  'preavis':'Loi n° 89-462 du 6 juillet 1989, art. 15 (logement vide) et 25-8 (meublé) ; Code de procédure civile, art. 641',
+  'depot':'Loi n° 89-462 du 6 juillet 1989, art. 22',
+  'solde':'Code du travail, art. L1234-20 et D1234-8',
+  'licenciement':'Code du travail, art. L1471-1',
+  'recours':'Code de justice administrative, art. R421-1 à R421-5',
+  'soins':'Code de la sécurité sociale : prescription de 2 ans des prestations (article exact à confirmer sur la fiche officielle)'
+};
+
+/* =================== CALCUL DE DATES (dates civiles en UTC) =================== */
+var DAY = 86400000;
+function utc(y,m,d){ return Date.UTC(y,m,d); }
+function parseISO(s){ var p=(s||'').split('-'); if(p.length!==3) return null; var t=utc(+p[0],+p[1]-1,+p[2]); return isNaN(t)?null:t; }
+function ymd(t){ var d=new Date(t); return {y:d.getUTCFullYear(),m:d.getUTCMonth(),d:d.getUTCDate()}; }
+function addDays(t,n){ return t + n*DAY; }
+function addMonths(t,n){
+  var o=ymd(t), tm=o.m+n, y=o.y+Math.floor(tm/12), m=((tm%12)+12)%12;
+  var last=new Date(Date.UTC(y,m+1,0)).getUTCDate();
+  return utc(y,m,Math.min(o.d,last));
+}
+function easter(y){
+  var a=y%19,b=Math.floor(y/100),c=y%100,d=Math.floor(b/4),e=b%4,f=Math.floor((b+8)/25),g=Math.floor((b-f+1)/3),
+      h=(19*a+b-d-g+15)%30,i=Math.floor(c/4),k=c%4,l=(32+2*e+2*i-h-k)%7,m=Math.floor((a+11*h+22*l)/451),
+      mo=Math.floor((h+l-7*m+114)/31), da=((h+l-7*m+114)%31)+1;
+  return utc(y,mo-1,da);
+}
+var holCache={};
+function holidays(y){
+  if(holCache[y]) return holCache[y];
+  var e=easter(y), s={};
+  [utc(y,0,1),utc(y,4,1),utc(y,4,8),utc(y,6,14),utc(y,7,15),utc(y,10,1),utc(y,10,11),utc(y,11,25),
+   addDays(e,1),addDays(e,39),addDays(e,50)].forEach(function(t){ s[t]=1; });
+  return (holCache[y]=s);
+}
+function isHoliday(t){ return !!holidays(ymd(t).y)[t]; }
+function isWeekend(t){ var w=new Date(t).getUTCDay(); return w===0||w===6; }
+function nextWorking(t){ while(isWeekend(t)||isHoliday(t)) t=addDays(t,1); return t; }
+function quarterEnd2y(t){ var o=ymd(t), q=Math.floor(o.m/3); return utc(o.y+2,q*3+3,0); } // dernier jour du trimestre, 2 ans plus tard
+function compute(calc,trigger,report){
+  var r;
+  if(calc.t==='days') r=addDays(trigger,calc.n);
+  else if(calc.t==='months') r=addMonths(trigger,calc.n);
+  else r=quarterEnd2y(trigger);
+  var shifted=false;
+  if(report){ var n=nextWorking(r); shifted=(n!==r); r=n; }
+  return {date:r,shifted:shifted};
+}
+function todayUTC(){ var n=new Date(); return utc(n.getFullYear(),n.getMonth(),n.getDate()); }
+var fmtLong=new Intl.DateTimeFormat('fr-FR',{weekday:'long',day:'numeric',month:'long',year:'numeric',timeZone:'UTC'});
+var fmtShort=new Intl.DateTimeFormat('fr-FR',{day:'numeric',month:'long',year:'numeric',timeZone:'UTC'});
+function rel(diff){
+  if(diff===0) return 'C’est aujourd’hui';
+  if(diff>0) return 'Dans '+diff+' jour'+(diff>1?'s':'');
+  return 'Dépassé depuis '+(-diff)+' jour'+(diff<-1?'s':'');
+}
+
+/* =================== VERSION, HORS LIGNE, ANCIENNETÉ DES RÈGLES =================== */
+function refreshBanner(){
+  var msgs=[], b=$('banner');
+  var age=Math.floor((todayUTC()-parseISO(VERIF_ISO))/DAY);
+  if(age>STALE_DAYS) msgs.push('Attention : les règles de ce site ont été vérifiées il y a plus de '+STALE_DAYS+' jours (le '+VERIF+'). La loi a pu changer : vérifiez chaque délai sur la fiche officielle avant de vous y fier.');
+  if(navigator.onLine===false) msgs.push('Vous êtes hors ligne : ce site affiche les règles de votre dernière visite (version '+RULES_VERSION+', vérifiées le '+VERIF+'). Reconnectez-vous pour récupérer d’éventuelles mises à jour.');
+  b.textContent=msgs.join(' '); b.hidden=!msgs.length;
+}
+$('version').textContent='Règles version '+RULES_VERSION+' — vérifiées le '+VERIF+'.';
+window.addEventListener('online',refreshBanner); window.addEventListener('offline',refreshBanner);
+
+/* =================== ANNONCES, THÈME =================== */
+var annT=null;
+function announce(m){ clearTimeout(annT); annT=setTimeout(function(){ $('announce').textContent=m; },500); }
+var themeBtn=$('theme');
+function applyTheme(t){
+  document.documentElement.setAttribute('data-theme',t);
+  themeBtn.setAttribute('aria-pressed',t==='dark'?'true':'false');
+  themeBtn.textContent=t==='dark'?'☀️ Thème clair':'🌙 Thème sombre';
+}
+var saved=null; try{ saved=localStorage.getItem('delais-theme'); }catch(e){}
+applyTheme(saved||(window.matchMedia&&matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light'));
+themeBtn.addEventListener('click',function(){
+  var t=document.documentElement.getAttribute('data-theme')==='dark'?'light':'dark'; applyTheme(t);
+  try{ localStorage.setItem('delais-theme',t); }catch(e){}
+});
+
+/* =================== ACCUEIL =================== */
+var homeList=$('home-list');
+(function buildHome(){
+  var cats=[], by={};
+  RULES.forEach(function(r){ if(!by[r.cat]){ by[r.cat]=[]; cats.push(r.cat); } by[r.cat].push(r); });
+  cats.forEach(function(c){
+    var h=document.createElement('h2'); h.className='cat'; h.textContent=c; homeList.appendChild(h);
+    var ul=document.createElement('ul'); ul.className='grid';
+    by[c].forEach(function(r){
+      var li=document.createElement('li'), a=document.createElement('a'); a.className='tile'; a.href='#'+r.id;
+      var i=document.createElement('span'); i.className='ico'; i.setAttribute('aria-hidden','true'); i.textContent=r.icon;
+      var t=document.createElement('h3'); t.textContent=r.titre;
+      var p=document.createElement('p'); p.textContent=r.resume;
+      a.appendChild(i); a.appendChild(t); a.appendChild(p); li.appendChild(a); ul.appendChild(li);
+    });
+    homeList.appendChild(ul);
+  });
+})();
+
+/* =================== OUTIL =================== */
+var cur=null, curVariant=null, lastResults=[];
+var elTrig=$('trigger');
+function selectRule(r){
+  cur=r; curVariant=(r.variants.length>1)?null:r.variants[0];
+  $('tool-title').textContent=r.titre; $('tool-desc').textContent=r.resume;
+  var fs=$('variants'), list=$('variants-list'); list.innerHTML='';
+  if(r.variants.length>1){
+    fs.hidden=false;
+    r.variants.forEach(function(v,idx){
+      var l=document.createElement('label'); l.className='opt';
+      var i=document.createElement('input'); i.type='radio'; i.name='variant'; i.value=v.id; i.checked=false;
+      i.addEventListener('change',function(){ curVariant=v; $('err').textContent=''; updateTrigger(); calc(); });
+      var s=document.createElement('span'); s.textContent=v.label; l.appendChild(i); l.appendChild(s); list.appendChild(l);
+    });
+  } else fs.hidden=true;
+  elTrig.value=''; $('err').textContent=''; $('results').hidden=true; $('status').textContent='';
+  updateTrigger();
+  var rs=$('reserves'); rs.innerHTML='';
+  r.reserves.forEach(function(x){ var li=document.createElement('li'); li.textContent=x; rs.appendChild(li); });
+  var src=$('src'); src.innerHTML='';
+  src.appendChild(document.createTextNode('Source officielle : '));
+  var a=document.createElement('a'); a.href=r.src.url; a.target='_blank'; a.rel='noopener noreferrer'; a.textContent=r.src.label; src.appendChild(a);
+  src.appendChild(document.createTextNode(' — règles vérifiées le '+VERIF+' (version '+RULES_VERSION+'). Les textes évoluent : vérifiez la fiche.'));
+  if(ART[r.id]){ src.appendChild(document.createElement('br')); src.appendChild(document.createTextNode('Texte applicable : '+ART[r.id]+'.')); }
+}
+function updateTrigger(){
+  if(!curVariant){ $('trigger-label').textContent='Date de départ du délai'; $('trigger-help').textContent='Choisissez d’abord votre cas ci-dessus : la date à saisir en dépend.'; return; }
+  $('trigger-label').textContent=curVariant.trigger; $('trigger-help').textContent=curVariant.help||'';
+}
+function calc(){
+  var err=$('err'); err.textContent='';
+  var t=parseISO(elTrig.value);
+  if(!curVariant){ $('results').hidden=true; if(elTrig.value) err.textContent='Choisissez d’abord votre cas : le résultat en dépend.'; return; }
+  if(!elTrig.value){ $('results').hidden=true; return; }
+  if(t===null){ err.textContent='Date invalide.'; $('results').hidden=true; return; }
+  var y=ymd(t).y; if(y<2000||y>2100){ err.textContent='Choisissez une date entre 2000 et 2100.'; $('results').hidden=true; return; }
+  var today=todayUTC(), box=$('res-list'); box.innerHTML=''; lastResults=[];
+  curVariant.deadlines.forEach(function(dl){
+    var r=compute(dl.calc,t,dl.report), diff=Math.round((r.date-today)/DAY), past=diff<0;
+    lastResults.push({label:dl.label,date:r.date,note:dl.note,past:past,rule:cur.titre,early:curVariant.early,cautious:!!dl.cautious});
+    var c=document.createElement('article'); c.className='res'+(past?' past':'');
+    var h=document.createElement('h3'); h.textContent=(dl.cautious?'Date prudente (pas la date limite légale) — ':'')+dl.label; c.appendChild(h);
+    var d=document.createElement('p'); d.className='date'; d.textContent=fmtLong.format(r.date); c.appendChild(d);
+    var rl=document.createElement('p'); rl.className='rel'; rl.style.margin='0'; rl.textContent=rel(diff); c.appendChild(rl);
+    var chip=document.createElement('span'); chip.className='chip';
+    chip.textContent = dl.cautious ? 'Date prudente : le délai légal peut courir un jour de plus' : dl.report ? (r.shifted?'Reporté au jour ouvrable suivant':'Report au jour ouvrable suivant si besoin') : 'Pas de report garanti';
+    c.appendChild(chip);
+    if(dl.note){ var n=document.createElement('p'); n.className='note'; n.textContent=dl.note; c.appendChild(n); }
+    if(past){ var w=document.createElement('p'); w.className='note'; w.style.fontWeight='700'; w.textContent='Ce délai semble dépassé. Des exceptions existent (par exemple si les voies de recours n’ont pas été indiquées) : renseignez-vous auprès de l’organisme concerné ou d’un professionnel.'; c.appendChild(w); }
+    else if(diff>14){ var m=addDays(r.date,-7); var ad=document.createElement('p'); ad.className='adv'; ad.textContent='Conseil : visez le '+fmtShort.format(m)+' pour garder une marge (courrier, accusé de réception, imprévus).'; c.appendChild(ad); }
+    box.appendChild(c);
+  });
+  $('results').hidden=false;
+  announce(lastResults.length+' échéance'+(lastResults.length>1?'s':'')+' calculée'+(lastResults.length>1?'s':'')+'. Première : '+fmtShort.format(lastResults[0].date)+'.');
+}
+elTrig.addEventListener('input',calc);
+
+/* =================== RÉCAPITULATIF + ICS =================== */
+function summaryText(){
+  var l=['Mes délais — '+cur.titre,'Départ du délai : '+fmtShort.format(parseISO(elTrig.value))+' ('+curVariant.trigger+')',''];
+  lastResults.forEach(function(r){ l.push('• '+(r.cautious?'[date prudente, pas la date limite légale] ':'')+r.label+' : '+fmtLong.format(r.date)+(r.past?' (semble dépassé)':'')); });
+  l.push('','Calcul indicatif, règles vérifiées le '+VERIF+' — vérifiez la source officielle : '+cur.src.url);
+  return l.join('\n');
+}
+$('copy').addEventListener('click',function(){
+  var txt=summaryText(), st=$('status');
+  function ok(){ st.className='status'; st.style.color=''; st.textContent='Récapitulatif copié.'; }
+  function ko(){ st.className='status'; st.style.color='var(--err)'; st.textContent='Copie impossible : sélectionnez le texte manuellement.'; }
+  if(navigator.clipboard&&navigator.clipboard.writeText) navigator.clipboard.writeText(txt).then(ok,ko); else ko();
+});
+function pad(n){ return (n<10?'0':'')+n; }
+function icsDate(t){ var o=ymd(t); return o.y+pad(o.m+1)+pad(o.d); }
+function esc(s){ return String(s).replace(/\\/g,'\\\\').replace(/;/g,'\\;').replace(/,/g,'\\,').replace(/\r?\n/g,'\\n'); }
+function fold(line){                       // RFC 5545 : 75 octets max par ligne, jamais au milieu d’un caractère UTF-8
+  var enc=new TextEncoder(), out=[], cur='', bytes=0, limit=75;
+  for(var ch of line){                     // itère par point de code (emoji, accents)
+    var b=enc.encode(ch).length;
+    if(bytes+b>limit){ out.push(cur); cur=''; bytes=0; limit=74; }   // 74 : l’espace de continuation compte
+    cur+=ch; bytes+=b;
+  }
+  out.push(cur);
+  return out.join('\r\n ');
+}
+function uid(){ try{ return crypto.randomUUID(); }catch(e){ return String(Date.now())+Math.random().toString(16).slice(2); } }
+function stamp(){ var n=new Date(); return n.getUTCFullYear()+pad(n.getUTCMonth()+1)+pad(n.getUTCDate())+'T'+pad(n.getUTCHours())+pad(n.getUTCMinutes())+pad(n.getUTCSeconds())+'Z'; }
+function vevent(summary,desc,date,alarms){
+  var L=['BEGIN:VEVENT','UID:'+uid()+'@mes-delais','DTSTAMP:'+stamp(),'DTSTART;VALUE=DATE:'+icsDate(date),'DTEND;VALUE=DATE:'+icsDate(addDays(date,1)),
+         'SUMMARY:'+esc(summary),'DESCRIPTION:'+esc(desc),'TRANSP:TRANSPARENT'];
+  var today=todayUTC();
+  alarms.forEach(function(d){
+    if(addDays(date,-d)<today) return;
+    L.push('BEGIN:VALARM','ACTION:DISPLAY','DESCRIPTION:'+esc(summary),'TRIGGER:-P'+d+'D','END:VALARM');
+  });
+  L.push('END:VEVENT'); return L;
+}
+$('ics').addEventListener('click',function(){
+  var st=$('status'); st.style.color=''; var ev=[], today=todayUTC();
+  lastResults.forEach(function(r){
+    if(r.past){ return; }
+    var d=r.label+' — '+r.rule+'\n'+(r.note||'')+'\nCalcul indicatif (règles vérifiées le '+VERIF+') : vérifiez la source officielle : '+cur.src.url+'\nAgissez avant, pas le dernier jour.';
+    ev=ev.concat(vevent((r.cautious?'⏰ Date prudente (≠ date limite légale) : ':'⏰ Délai : ')+r.label,(r.cautious?'DATE PRUDENTE, pas la date limite légale : le délai légal peut courir un jour de plus, mais ne comptez pas dessus.\n':'')+d,r.date,[14,7,2]));
+    if(r.early){ var ed=addDays(r.date,-r.early.days); if(ed>=today) ev=ev.concat(vevent('✉️ '+r.early.label,'À faire sans attendre avant la fin du délai ('+fmtShort.format(r.date)+').',ed,[])); }
+  });
+  if(!ev.length){ st.className='status'; st.style.color='var(--err)'; st.textContent='Aucune échéance à venir à ajouter : les délais calculés sont dépassés.'; return; }
+  var all=['BEGIN:VCALENDAR','VERSION:2.0','PRODID:-//Mes delais//FR','CALSCALE:GREGORIAN'].concat(ev,['END:VCALENDAR']).map(fold).join('\r\n')+'\r\n';
+  try{
+    var blob=new Blob([all],{type:'text/calendar;charset=utf-8'}), a=document.createElement('a');
+    a.href=URL.createObjectURL(blob); a.download='mes-delais-'+cur.id+'.ics'; document.body.appendChild(a); a.click();
+    setTimeout(function(){ URL.revokeObjectURL(a.href); a.remove(); },1500);
+    st.className='status'; st.textContent='Fichier calendrier créé : ouvrez-le pour l’ajouter à votre agenda (rappels à J-14, J-7 et J-2).';
+  }catch(e){ st.className='status'; st.style.color='var(--err)'; st.textContent='Impossible de créer le fichier sur ce navigateur.'; }
+});
+
+/* =================== NAVIGATION =================== */
+var first=true;
+function route(){
+  var h=location.hash.replace('#',''), r=null;
+  RULES.forEach(function(x){ if(x.id===h) r=x; });
+  $('view-home').hidden=!!r; $('view-tool').hidden=!r;
+  if(r){ selectRule(r); document.title=r.titre+' — Mes délais'; }
+  else document.title='Mes délais — Ne ratez plus une échéance de vos droits';
+  if(!first){
+    if(r) $('tool-title').focus(); else { $('home-title').setAttribute('tabindex','-1'); $('home-title').focus(); }
+    window.scrollTo(0,0);
+  }
+  first=false;
+}
+window.addEventListener('hashchange',route);
+$('home-link').addEventListener('click',function(e){ e.preventDefault(); if(location.hash) location.hash=''; else route(); });
+$('skip').addEventListener('click',function(e){ e.preventDefault(); var m=$('contenu'); m.setAttribute('tabindex','-1'); m.focus(); });
+
+window.__delais={compute:compute,addMonths:addMonths,easter:easter,holidays:holidays,nextWorking:nextWorking,quarterEnd2y:quarterEnd2y,utc:utc,ymd:ymd,RULES:RULES};
+
+if('serviceWorker' in navigator && location.protocol==='https:'){
+  window.addEventListener('load',function(){ navigator.serviceWorker.register('sw.js').catch(function(){}); });
+}
+refreshBanner();
+route();
+})();
+</script>
+</body>
+</html>
